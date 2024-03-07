@@ -25,7 +25,7 @@ def load_template(assistant_id, title="SIMBA", thread_id=None):
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    if "thread_id" is None:
+    if thread_id is None:
         thread = openai_client.beta.threads.create()
         thread_id = thread.id
 
