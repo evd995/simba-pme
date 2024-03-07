@@ -3,7 +3,12 @@ from openai import OpenAI
 import streamlit as st
 import logging
 import time
+import sys
 
+# Configure LlamaIndex logging to output to stdout at DEBUG level in a single line
+if 'debug_logging_configured' not in st.session_state:
+    logging.basicConfig(stream=sys.stdout)
+    st.session_state.debug_logging_configured = True
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 openai_client = OpenAI()
