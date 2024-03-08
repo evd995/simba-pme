@@ -1,3 +1,4 @@
+from google.oauth2 import service_account
 from google.cloud import firestore
 import openai
 from openai import OpenAI
@@ -11,11 +12,12 @@ openai_client = OpenAI()
 GCP_PROJECT = st.secrets["GCP_PROJECT"]
 COURSE_ID = st.secrets["COURSE_ID"]
 
+import json
+creds = service_account.Credentials.from_service_account_info(st.secrets["FIRESTORE_CREDS"])
+db = firestore.Client(credentials=creds, project=GCP_PROJECT)
 
 def get_activity_thread(activity_id):
-
     user_id = st.session_state['username']
-    db = firestore.Client(project=GCP_PROJECT)
     course_db = db.collection('courses').document(str(COURSE_ID))
     users_db = course_db.collection('users')
     user_db = users_db.document(str(user_id))

@@ -2,3 +2,4 @@ streamlit
 openai
 google-cloud-firestore
 streamlit-authenticator
+google-auth-oauthlib
