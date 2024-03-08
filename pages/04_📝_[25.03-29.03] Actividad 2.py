@@ -13,7 +13,7 @@ assistant_id = st.secrets["ASSISTANT_IDS"][activity_id]
 if get_auth_status():
     print("\nHola\n")
     load_template(
-        activity_id, 
-        assistant_id, 
+        activity_id=activity_id, 
+        assistant_id=assistant_id, 
         title="SIMBA - Actividad formativa"
     ) 

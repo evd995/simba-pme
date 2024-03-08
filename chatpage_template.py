@@ -4,7 +4,7 @@ import sys
 
 import chatbot_helper
 
-def load_template(activity_id, assistant_id, title="SIMBA"):
+def load_template(activity_id, assistant_id, title):
     # Configure LlamaIndex logging to output to stdout at DEBUG level in a single line
     if 'debug_logging_configured' not in st.session_state:
         logging.basicConfig(stream=sys.stdout)
