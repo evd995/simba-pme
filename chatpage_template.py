@@ -6,17 +6,17 @@ import chatbot_helper
 from traces_helper import save_navigation
 
 def disable():
-    st.session_state["disabled"] = True
+    st.session_state["text_disabled"] = True
 
 def enable():
-    st.session_state["disabled"] = False
+    st.session_state["text_disabled"] = False
 
 def load_template(activity_id, assistant_id, title):
 
     save_navigation(activity_id)
 
-    if "disabled" not in st.session_state:
-        st.session_state["disabled"] = False
+    if "text_disabled" not in st.session_state:
+        st.session_state["text_disabled"] = False
 
     # Configure LlamaIndex logging to output to stdout at DEBUG level in a single line
     if 'debug_logging_configured' not in st.session_state:
@@ -43,8 +43,7 @@ def load_template(activity_id, assistant_id, title):
         with st.chat_message(message["role"], avatar=avatar):
             st.markdown(message["content"])
 
-    # prompt = st.chat_input("What is up?", on_submit=disable, disabled=st.session_state.disabled)
-    prompt = st.chat_input("What is up?")
+    prompt = st.chat_input("What is up?", on_submit=disable, disabled=st.session_state["text_disabled"])
     if prompt and thread_id is not None:
         disable()
         # Display user message in chat message container
@@ -64,4 +63,5 @@ def load_template(activity_id, assistant_id, title):
             
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "model", "content": response_message})
-        st.rerun
+        enable()
+        st.rerun()
