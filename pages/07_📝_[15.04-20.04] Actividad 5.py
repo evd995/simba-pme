@@ -11,7 +11,7 @@ activity_id = 'Actividad_5'
 assistant_id = st.secrets["ASSISTANT_IDS"][activity_id]
 
 if get_auth_status():
-    print("\nHola\n")
+    # print("\nHola\n")
     load_template(
         activity_id=activity_id, 
         assistant_id=assistant_id, 

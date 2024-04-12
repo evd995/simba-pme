@@ -5,9 +5,18 @@ import sys
 import chatbot_helper
 from traces_helper import save_navigation
 
+def disable():
+    st.session_state["disabled"] = True
+
+def enable():
+    st.session_state["disabled"] = False
+
 def load_template(activity_id, assistant_id, title):
 
     save_navigation(activity_id)
+
+    if "disabled" not in st.session_state:
+        st.session_state["disabled"] = False
 
     # Configure LlamaIndex logging to output to stdout at DEBUG level in a single line
     if 'debug_logging_configured' not in st.session_state:
@@ -34,8 +43,10 @@ def load_template(activity_id, assistant_id, title):
         with st.chat_message(message["role"], avatar=avatar):
             st.markdown(message["content"])
 
+    # prompt = st.chat_input("What is up?", on_submit=disable, disabled=st.session_state.disabled)
     prompt = st.chat_input("What is up?")
     if prompt and thread_id is not None:
+        disable()
         # Display user message in chat message container
         st.chat_message("user").markdown(prompt)
         # Add user message to chat history
@@ -44,12 +55,13 @@ def load_template(activity_id, assistant_id, title):
         logging.info('Creating message in thread...')
         with st.status("..."):
             st.write("Espera un momento, estoy pensando en una respuesta...")
-            response_message = chatbot_helper.create_message(prompt, thread_id, assistant_id)
+            response_message = chatbot_helper.create_message(prompt, thread_id, assistant_id)        
             logging.info(f'Response message: {response_message}')
 
         # Start streaming model response
         with st.chat_message("model", avatar="😸"):
             st.markdown(response_message)
-
+            
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "model", "content": response_message})
+        st.rerun
