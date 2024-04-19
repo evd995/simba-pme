@@ -65,3 +65,5 @@ tzlocal==5.2
 urllib3==2.2.1
 validators==0.22.0
 zipp==3.17.0
+google-cloud-firestore
+
