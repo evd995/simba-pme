@@ -3,6 +3,7 @@ import logging
 import sys
 
 import chatbot_helper
+import chatbot_eval as ce
 from traces_helper import save_navigation
 
 def disable():
@@ -14,7 +15,7 @@ def enable():
 def load_template(activity_id, assistant_id, title):
 
     save_navigation(activity_id)
-
+    # tru = ce.build_tru_recorder()
     if "text_disabled" not in st.session_state:
         st.session_state["text_disabled"] = False
 

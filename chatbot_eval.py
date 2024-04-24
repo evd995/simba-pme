@@ -33,7 +33,7 @@ class OpenAI_custom(fOpenAI):
 
 custom_no_answer = OpenAI_custom()
 
-def build_tru_recorder(agent):
+def build_tru_recorder():
     provider = fOpenAI()
 
     #Setting up the virtual app

@@ -45,6 +45,7 @@ def get_messages(thread_id):
     
     clean_messages = []
     for message in messages.data[1:]:
+        # print(message)
         clean_messages.append({
             "role": message.role if message.role == "user" else "model",
             "content": message.content[0].text.value
