@@ -6,6 +6,8 @@ import chatbot_helper
 import chatbot_eval as ce
 from traces_helper import save_navigation
 
+put_all_messages = False
+
 def disable():
     st.session_state["text_disabled"] = True
 
@@ -47,15 +49,16 @@ def load_template(activity_id, assistant_id, title):
     if "tru_recorder" not in st.session_state:
         tru = ce.build_tru_recorder()
 
-        exchange = {"input" : "","output" : ""}
-        for message in st.session_state.messages:
-            if message["role"] == "user":
-                exchange["input"] = message["content"]
-            elif exchange["input"] != "" and message["role"] == "model":
-                exchange["output"] = message["content"]
-            
-            if exchange["input"] != "" and exchange["output"] != "":
-                ce.addRecord(exchange["input"], exchange["output"], "", tru)
+        if put_all_messages :
+            exchange = {"input" : "","output" : ""}
+            for message in st.session_state.messages:
+                if message["role"] == "user":
+                    exchange["input"] = message["content"]
+                elif exchange["input"] != "" and message["role"] == "model":
+                    exchange["output"] = message["content"]
+                
+                if exchange["input"] != "" and exchange["output"] != "":
+                    ce.addRecord(exchange["input"], exchange["output"], "", tru)
 
         st.session_state["tru_recorder"] = tru
     else :
