@@ -15,7 +15,7 @@ def enable():
 def load_template(activity_id, assistant_id, title):
 
     save_navigation(activity_id)
-    # tru = ce.build_tru_recorder()
+    
     if "text_disabled" not in st.session_state:
         st.session_state["text_disabled"] = False
 
@@ -43,6 +43,23 @@ def load_template(activity_id, assistant_id, title):
         avatar = "😸" if message["role"] == "model" else None
         with st.chat_message(message["role"], avatar=avatar):
             st.markdown(message["content"])
+    
+    if "tru_recorder" not in st.session_state:
+        tru = ce.build_tru_recorder()
+
+        exchange = {"input" : "","output" : ""}
+        for message in st.session_state.messages:
+            if message["role"] == "user":
+                exchange["input"] = message["content"]
+            elif exchange["input"] != "" and message["role"] == "model":
+                exchange["output"] = message["content"]
+            
+            if exchange["input"] != "" and exchange["output"] != "":
+                ce.addRecord(exchange["input"], exchange["output"], "", tru)
+
+        st.session_state["tru_recorder"] = tru
+    else :
+        tru = st.session_state["tru_recorder"]
 
     prompt = st.chat_input("What is up?", on_submit=disable, disabled=st.session_state["text_disabled"])
     if prompt and thread_id is not None:
@@ -64,5 +81,6 @@ def load_template(activity_id, assistant_id, title):
             
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "model", "content": response_message})
+        ce.addRecord(prompt,response_message,"",st.session_state["tru_recorder"])
         enable()
         st.rerun()
