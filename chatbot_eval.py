@@ -132,3 +132,30 @@ def addRecord(input,output,context,recorder):
         }
     )
     recorder.add_record(rec)
+
+def evaluateLast(col,tru):
+    if "tru_recorder" in st.session_state:
+        records, _ = tru.get_records_and_feedback(app_ids=[])
+
+        if len(records) == 0:
+            metric_cols_ix = records.columns.str.startswith("[METRIC]") & ~records.columns.str.endswith("_calls")
+            metric_cols = records.columns[metric_cols_ix]
+            last_metrics = records[metric_cols][-1]
+        
+            with col:
+                # Show alerts for metrics that are below 0.3
+                if '[METRIC] Answer Relevance' in records.columns:
+                    if last_metrics['[METRIC] Answer Relevance'] < (1/3):
+                        st.markdown("🚨 **Low relevance of the assistant's answers.** The assistant may not have all the information needed to answer the question, his answers may be incomplete.")
+                
+                if '[METRIC] Groundedness' in records.columns:            
+                    if last_metrics['[METRIC] Groundedness'] < (1/3):
+                        st.markdown("🚨 **Low groundedness of the assistant's answers.** The assistant may be hallucinating some facts, giving information that is not based on course context or related sources.")
+                
+                if '[METRIC] Insensitivity' in records.columns:            
+                    if last_metrics['[METRIC] Insensitivity'] > (2/3):
+                        st.markdown("🚨 **Insensitive answers from the assistant.** The assistant may be giving insensitive answers. In the activity goal you can try adding your desired tone for the bot (friendly, formal, etc).")
+                
+                if '[METRIC] Input Maliciousness' in records.columns:
+                    if last_metrics['[METRIC] Input Maliciousness'] > (2/3):
+                        st.markdown("🚨 **Malicious input from the user detected.** The users may be trying to trick the assistant. You can modify the assisant's goal or discuss with your students in class the best uses for this technology.")

@@ -102,6 +102,7 @@ def load_template(activity_id, assistant_id, title):
             st.session_state.messages.append({"role": "model", "content": response_message})
             if "tru_recorder" in st.session_state:
                 ce.addRecord(prompt,response_message,"",st.session_state["tru_recorder"])
+                
             enable()
             st.rerun()
 
