@@ -17,22 +17,6 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 openai_client = OpenAI()
 
-class OpenAI_custom(fOpenAI):
-    """
-    From tutorial: 
-    https://colab.research.google.com/github/truera/trulens/blob/main/trulens_eval/examples/expositional/frameworks/langchain/langchain_agents.ipynb#scrollTo=hnXeWFcPUaqk
-    """
-    def no_answer_feedback(self, question: str, response: str) -> float:
-        return float(openai_client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=[
-            {"role": "system", "content": "Does the RESPONSE provide an answer to the QUESTION? Rate on a scale of 1 to 10. Respond with the number only."},
-            {"role": "user", "content": f"QUESTION: {question}; RESPONSE: {response}"}
-        ]
-    ).choices[0].message.content) / 10
-
-custom_no_answer = OpenAI_custom()
-
 def build_tru_recorder():
     provider = fOpenAI()
 
@@ -117,14 +101,9 @@ def build_tru_recorder():
         provider.sentiment_with_cot_reasons, name="[METRIC] Ouput Sentiment"
     ).on_input()
 
-    # AGENT: Missing tools
-    f_no_answer = Feedback(
-        custom_no_answer.no_answer_feedback, name="[METRIC] Answers Question"
-    ).on_input_output()
-
     tru_recorder = TruVirtual(
         virtual_app,
-        app_id="Students Agent",
+        app_id="SIMBA_virtual",
         feedbacks=[
             f_qa_relevance,
             #f_qs_relevance,
@@ -135,7 +114,6 @@ def build_tru_recorder():
             #f_coherence,
             #f_input_sentiment,
             #f_output_sentiment,
-            #f_no_answer
         ]
     )
     return tru_recorder
