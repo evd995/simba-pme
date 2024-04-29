@@ -6,9 +6,10 @@ import chatbot_helper
 import chatbot_eval as ce
 from traces_helper import save_navigation
 from trulens_eval import Tru
-from streamlit_js_eval import streamlit_js_eval
+# from streamlit_js_eval import streamlit_js_eval
 
 put_all_messages = True
+means = False
 reset = True
 
 def disable():
@@ -40,13 +41,20 @@ def load_template(activity_id, assistant_id, title):
     st.session_state.messages = chatbot_helper.get_messages(thread_id)
 
     tru = Tru()
-    if reset:
+
+    if reset and ("already_reset" not in st.session_state) :
+        st.session_state["already_reset"] = False
+
+    if reset and not st.session_state["already_reset"] :
         tru.reset_database()
+        st.session_state["already_reset"] = True
 
-    if "tru_recorder" not in st.session_state or reset:
+    if "tru_recorder" not in st.session_state :
         tru_virtual = ce.build_tru_recorder()
+        if "all_messages-put" not in st.session_state:
+            st.session_state["all_messages-put"]  = False
 
-        if put_all_messages :
+        if put_all_messages and not st.session_state["all_messages-put"] :
             exchange = {"input" : "","output" : ""}
             for message in st.session_state.messages:
 
@@ -63,8 +71,8 @@ def load_template(activity_id, assistant_id, title):
         st.session_state["tru_recorder"] = tru_virtual
 
     # Using columns to place text and monitoring side by side
-    col1, col2 = st.columns([0.9,0.1])
-    with col1.container(height=500, border=False):
+    col1, col2 = st.columns([0.5,0.5])
+    with col1.container(height=1000, border=False):
         
         st.title(title)
         intro_placeholder = st.empty()
@@ -102,24 +110,24 @@ def load_template(activity_id, assistant_id, title):
             st.session_state.messages.append({"role": "model", "content": response_message})
             if "tru_recorder" in st.session_state:
                 ce.addRecord(prompt,response_message,"",st.session_state["tru_recorder"])
-                
+                # ce.evaluateLast(col2,tru)
             enable()
             st.rerun()
 
     with col2:
         st.header("Monitor Assistant Performance")
         if "tru_recorder" in st.session_state:
-            records, _ = tru.get_records_and_feedback(app_ids=[])
-            metric_cols_ix = records.columns.str.startswith("[METRIC]") & ~records.columns.str.endswith("_calls")
-            metric_cols = records.columns[metric_cols_ix]
-            mean_metrics = records[metric_cols].mean()
-            if len(records) == 0:
-                    st.write("There are no conversations loaded in TruLens.")
             if st.button("Check Performance (TruLens)"):
+                tru = Tru()
+                records, _ = tru.get_records_and_feedback(app_ids=[])
                 print(records.columns)
                 if len(records) == 0:
-                    st.write("There are no conversations loaded in TruLens.")
+                    st.write("There are no conversations loaded in TruLens. Please start a conversation with the assistant and come back.")
                 else:
+                    metric_cols_ix = records.columns.str.startswith("[METRIC]") & ~records.columns.str.endswith("_calls")
+                    metric_cols = records.columns[metric_cols_ix]
+                    mean_metrics = records[metric_cols].mean()
+
                     # Show alerts for metrics that are below 0.3
                     if '[METRIC] Answer Relevance' in records.columns:
                         if mean_metrics['[METRIC] Answer Relevance'] < (1/3):
