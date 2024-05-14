@@ -48,6 +48,7 @@ def get_messages(thread_id):
     clean_messages = []
     for message in messages.data[1:]:
         # print(message)
+        print(message.content[0].text.annotations)
         new_message = {
             "role": message.role if message.role == "user" else "model",
             "content": message.content[0].text.value
@@ -92,5 +93,6 @@ def create_message(input_message, thread_id, assistant_id):
             thread_id=thread_id,
     )
     response_message = messages.data[0].content[0].text.value
+    print(messages.data[0].content[0].text.annotations)
     logging.info(f'Response message: {response_message}')
     return response_message

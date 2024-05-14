@@ -116,7 +116,9 @@ def load_template(activity_id, assistant_id, title):
 
     with col2:
         st.header("Monitor Assistant Performance")
+
         if "tru_recorder" in st.session_state:
+
             if st.button("Check Performance (TruLens)"):
                 tru = Tru()
                 records, _ = tru.get_records_and_feedback(app_ids=[])
@@ -188,7 +190,7 @@ def load_template(activity_id, assistant_id, title):
                 else:
                     metric_cols_ix = records.columns.str.startswith("[METRIC]") & ~records.columns.str.endswith("_calls")
                     metric_cols = records.columns[metric_cols_ix]
-                    last_metrics = records[metric_cols].tail(1)
+                    last_metrics = records[metric_cols].iloc[-1]
 
                     # Show alerts for metrics that are below 0.3
                     if '[METRIC] Answer Relevance' in records.columns:
@@ -208,37 +210,37 @@ def load_template(activity_id, assistant_id, title):
                             st.markdown("🚨 **Malicious input from the user detected.** The users may be trying to trick the assistant. You can modify the assisant's goal or discuss with your students in class the best uses for this technology.")
                     
 
-                    records['ts'] = records['ts'].apply(lambda x: x[:16])
-                    process_str = lambda x: x.encode("latin_1").decode("raw_unicode_escape").encode('utf-16', 'surrogatepass').decode('utf-16')
-                    records['input'] = records['input'].apply(process_str)
-                    records['output'] = records['output'].apply(process_str)
-                    config = {
-                        'input' : st.column_config.TextColumn('input', width="small"),
-                        'output' : st.column_config.TextColumn('output', width="small"),
-                    }
+                    # records['ts'] = records['ts'].apply(lambda x: x[:16])
+                    # process_str = lambda x: x.encode("latin_1").decode("raw_unicode_escape").encode('utf-16', 'surrogatepass').decode('utf-16')
+                    # records['input'] = records['input'].apply(process_str)
+                    # records['output'] = records['output'].apply(process_str)
+                    # config = {
+                    #     'input' : st.column_config.TextColumn('input', width="small"),
+                    #     'output' : st.column_config.TextColumn('output', width="small"),
+                    # }
 
-                    HELP_DICT = {
-                        '[METRIC] Answer Relevance': 'A low score could indicate a lack of relevant context in the files.',
-                        '[METRIC] Groundedness': 'A low score could indicate hallucinations from the assistant.',
-                        '[METRIC] Insensitivity': 'A high score could represent inappropiate answers.',
-                        '[METRIC] Input Maliciousness': 'A high score could represent attempts to trick the assistant.',
-                    }
+                    # HELP_DICT = {
+                    #     '[METRIC] Answer Relevance': 'A low score could indicate a lack of relevant context in the files.',
+                    #     '[METRIC] Groundedness': 'A low score could indicate hallucinations from the assistant.',
+                    #     '[METRIC] Insensitivity': 'A high score could represent inappropiate answers.',
+                    #     '[METRIC] Input Maliciousness': 'A high score could represent attempts to trick the assistant.',
+                    # }
 
-                    for col in metric_cols:
-                        config[col] = st.column_config.TextColumn(col.replace('[METRIC] ', '').replace(' ', '\n'), width="small", help=HELP_DICT[col])
-                    records = records[["ts", "input", "output", *metric_cols]]
-                    records[metric_cols] = records[metric_cols].round(3)
-                    def color_code(val):
-                        if val < 0.3:
-                            color = '#d7481d'
-                        elif (0.3 <= val <= 0.6):
-                            color = '#fff321'
-                        else:
-                            color = '#59f720'
-                        return f'background-color: {color}'
+                    # for col in metric_cols:
+                    #     config[col] = st.column_config.TextColumn(col.replace('[METRIC] ', '').replace(' ', '\n'), width="small", help=HELP_DICT[col])
+                    # records = records[["ts", "input", "output", *metric_cols]]
+                    # records[metric_cols] = records[metric_cols].round(3)
+                    # def color_code(val):
+                    #     if val < 0.3:
+                    #         color = '#d7481d'
+                    #     elif (0.3 <= val <= 0.6):
+                    #         color = '#fff321'
+                    #     else:
+                    #         color = '#59f720'
+                    #     return f'background-color: {color}'
 
-                    # Apply color coding to the DataFrame
-                    styled_records = records.style.map(color_code, subset=metric_cols)
-                    styled_records = styled_records.map(lambda x: color_code(1 - x), subset=['[METRIC] Input Maliciousness', '[METRIC] Insensitivity'])
+                    # # Apply color coding to the DataFrame
+                    # styled_records = records.style.map(color_code, subset=metric_cols)
+                    # styled_records = styled_records.map(lambda x: color_code(1 - x), subset=['[METRIC] Input Maliciousness', '[METRIC] Insensitivity'])
 
-                    st.dataframe(styled_records, use_container_width=True, column_config=config)
+                    # st.dataframe(styled_records, use_container_width=True, column_config=config)
