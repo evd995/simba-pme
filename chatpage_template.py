@@ -8,7 +8,7 @@ from traces_helper import save_navigation
 from trulens_eval import Tru
 # from streamlit_js_eval import streamlit_js_eval
 
-put_all_messages = True
+put_all_messages = False
 means = False
 reset = True
 
