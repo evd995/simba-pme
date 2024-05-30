@@ -7,7 +7,7 @@ import logging
 import time
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
-openai_client = OpenAI()
+openai_client = OpenAI(default_headers={"OpenAI-Beta": "assistants=v2"})
 
 GCP_PROJECT = st.secrets["GCP_PROJECT"]
 COURSE_ID = st.secrets["COURSE_ID"]
