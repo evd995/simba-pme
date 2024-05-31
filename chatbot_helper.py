@@ -21,6 +21,7 @@ def get_activity_thread(activity_id):
     course_db = db.collection('courses').document(str(COURSE_ID))
     users_db = course_db.collection('users')
     user_db = users_db.document(str(user_id))
+    user_db.set({'created': True}, merge=True)
 
     # Get thread_id from Firebase
     activity_thread = user_db.collection('activity_threads').document(activity_id)
