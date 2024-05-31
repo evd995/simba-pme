@@ -1,8 +1,9 @@
 import streamlit as st
-import streamlit_authenticator as stauth
+from auth_helper import get_auth_status
 from streamlit_config_helper import set_streamlit_page_config_once
 
 set_streamlit_page_config_once()
+get_auth_status()
 
 # Title of the webpage
 st.title("Bienvenido a SIMBA - Tu Asistente de Aprendizaje")
@@ -18,7 +19,7 @@ with col1:  # First column for the text
     
 
 with col2:  # Second column for the image
-    st.image("SIMBA_img.jpeg", caption='SIMBA - Tu compañero de aprendizaje')
+    st.image("SIMBA_img.jpeg", caption='SIMBA - Tu compañero de estudio')
 
 st.markdown("---")
 
