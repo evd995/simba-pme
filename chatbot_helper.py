@@ -90,3 +90,34 @@ def create_message(input_message, thread_id, assistant_id):
     response_message = messages.data[0].content[0].text.value
     logging.info(f'Response message: {response_message}')
     return response_message
+
+def get_all_users_messages(activity_id):
+    course_db = db.collection('courses').document(str(COURSE_ID))
+    users_db = course_db.collection('users')
+    users_stream = users_db.stream()
+    conversations = []
+    for user_doc in users_stream:
+        activity_db = users_db.document(user_doc.id).collection('activity_threads').document(activity_id)
+        thread_id = activity_db.get().get('thread_id')
+        if thread_id is None: continue
+        thread_messages = get_messages(thread_id)
+        conversations.append(thread_messages)
+    return conversations
+
+def summarize_responses(activity_id):
+    conversations = get_all_users_messages(activity_id)
+    
+    SYSTEM_PROMPT = "A continuación verás una serie de conversaciones. Resume brevemente las respuestas de **los usuarios (user)**. No consideres las respuestas de modelo (model). Luego, has un punteo de los puntos más relevantes que abordaron los usuarios. Termina con una sugerencia de tema para una discusión grupal."
+    USER_PROMPT = f"---- CONVERSACIONES ----\n{conversations}"
+
+    response = openai_client.chat.completions.create(
+        model="gpt-4-turbo",
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": USER_PROMPT}
+        ]
+    )
+
+    response_message = response.choices[0].message.content
+
+    st.write(response_message)
